@@ -15,6 +15,9 @@
     --glass-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
     --radius: 16px;
     --btn-radius: 6px;
+    --people-color: #8661c5;
+    --brand-color: #d9820a;
+    --landmark-color: #1b8a5a;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -25,13 +28,11 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    /* Windows 11 / Modern Microsoft style animated background */
     background: linear-gradient(120deg, #f0f4f8 0%, #e0eaf5 100%);
     position: relative;
     overflow-x: hidden;
   }
   
-  /* Abstract background blobs for Windows 11 style */
   body::before, body::after {
     content: '';
     position: absolute;
@@ -50,7 +51,6 @@
     bottom: -100px; right: 10vw;
   }
 
-  /* ── NAVIGATION BAR ── */
   nav {
     display: flex;
     align-items: center;
@@ -91,7 +91,6 @@
     border-radius: 20px;
   }
 
-  /* ── MAIN LAYOUT ── */
   main {
     flex: 1;
     max-width: 1300px;
@@ -127,7 +126,6 @@
   }
   @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
 
-  /* ── GLASS PANELS ── */
   .glass-card {
     background: var(--glass-bg);
     backdrop-filter: blur(24px);
@@ -152,7 +150,6 @@
     color: var(--text-primary);
   }
 
-  /* ── UPLOAD AREA ── */
   .drop-zone {
     border: 2px dashed rgba(0, 103, 184, 0.3);
     background: rgba(255, 255, 255, 0.5);
@@ -230,7 +227,6 @@
   .btn-primary:hover { background: var(--ms-blue-hover); }
   .btn-primary:active { transform: scale(0.98); }
 
-  /* Preview */
   .preview-container { display: none; margin-top: 16px; animation: fadeIn 0.4s ease; }
   @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
   
@@ -242,14 +238,28 @@
     overflow: hidden;
     display: flex; justify-content: center; align-items: center;
     padding: 16px;
+    position: relative;
+  }
+  .preview-image-stack {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
   }
   .preview-image-wrapper img {
     max-width: 100%;
     max-height: 280px;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: block;
   }
-  
+  #overlay-canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    border-radius: 8px;
+  }
+
   .btn-analyze-large {
     width: 100%;
     padding: 14px;
@@ -264,7 +274,6 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── RESULTS AREA ── */
   .empty-state {
     flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
     color: var(--text-secondary); text-align: center; min-height: 350px;
@@ -278,6 +287,10 @@
   .result-label {
     font-size: 14px; font-weight: 600; color: var(--text-secondary);
     margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 50%; display: inline-block;
   }
   
   .caption-box {
@@ -302,14 +315,14 @@
   }
   .modern-tag:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
   .tag-conf { color: var(--text-secondary); font-weight: 400; }
+  .modern-tag.brand-tag { border-color: rgba(217, 130, 10, 0.4); }
+  .modern-tag.landmark-tag { border-color: rgba(27, 138, 90, 0.4); }
 
-  /* Progress Bars */
   .progress-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
   .progress-label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; }
   .progress-track { background: rgba(0,0,0,0.05); height: 6px; width: 100%; border-radius: 10px; overflow: hidden; }
   .progress-fill { background: var(--ms-blue); height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
 
-  /* OCR */
   .ocr-content {
     font-family: Consolas, "Courier New", monospace;
     font-size: 13px;
@@ -321,7 +334,21 @@
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
   }
 
-  /* Error */
+  .info-note {
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: rgba(0,0,0,0.03);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-top: 10px;
+    line-height: 1.4;
+  }
+
+  .empty-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
   .error-box {
     background: rgba(216, 59, 1, 0.1);
     border-left: 4px solid #D83B01;
@@ -333,7 +360,6 @@
     font-size: 14px;
   }
   
-  /* ── ARCHITECTURE SECTION ── */
   .arch-section {
     margin-top: 16px;
   }
@@ -384,7 +410,7 @@
 <main>
   <div class="hero-header">
     <h1>Smart Image Analysis</h1>
-    <p>Experience the power of Azure Cognitive Services. This reference architecture demonstrates secure, server-side AI integration using Python Flask and Microsoft's Image Analysis 4.0 API.</p>
+    <p>Experience the power of Azure Cognitive Services. This reference architecture demonstrates secure, server-side AI integration using Python Flask and Microsoft's Image Analysis 4.0 API, combined with brand and landmark recognition.</p>
   </div>
 
   <div class="dashboard">
@@ -408,7 +434,10 @@
 
       <div class="preview-container" id="preview-wrap">
         <div class="preview-image-wrapper">
-          <img id="preview-img" src="" alt="Preview">
+          <div class="preview-image-stack">
+            <img id="preview-img" src="" alt="Preview">
+            <canvas id="overlay-canvas"></canvas>
+          </div>
         </div>
         <button class="btn-primary btn-analyze-large" id="analyze-btn" onclick="analyzeCurrentImage()">
           <div class="spinner" id="spinner"></div>
@@ -437,6 +466,25 @@
             <div class="caption-text" id="res-caption">—</div>
             <div class="caption-conf" id="res-caption-conf"></div>
           </div>
+        </div>
+
+        <!-- People -->
+        <div class="result-group">
+          <div class="result-label"><span class="legend-dot" style="background:var(--people-color)"></span>People Detected</div>
+          <div id="res-people-summary" class="empty-sub">—</div>
+          <div class="info-note">Uses Azure AI Vision's general-purpose person bounding-box detector. This is not facial recognition/identification — that capability is Limited Access in Azure and requires a separate approval from Microsoft.</div>
+        </div>
+
+        <!-- Brands -->
+        <div class="result-group">
+          <div class="result-label"><span class="legend-dot" style="background:var(--brand-color)"></span>Brands Detected</div>
+          <div class="tags-container" id="res-brands"></div>
+        </div>
+
+        <!-- Landmarks -->
+        <div class="result-group">
+          <div class="result-label"><span class="legend-dot" style="background:var(--landmark-color)"></span>Landmarks Recognized</div>
+          <div class="tags-container" id="res-landmarks"></div>
         </div>
         
         <!-- Tags -->
@@ -473,13 +521,13 @@
       <div class="arch-node">
         <div class="arch-icon">⚙️</div>
         <div class="arch-title">2. Flask Middleware</div>
-        <div class="arch-desc">Acts as a secure proxy. Injects the Azure <code>VISION_KEY</code> from protected environment variables and validates payload.</div>
+        <div class="arch-desc">Acts as a secure proxy. Injects the Azure <code>VISION_KEY</code> from protected environment variables, calls Image Analysis 4.0 (tags/read/people) plus v3.2 brand and landmark models, and merges the results.</div>
       </div>
       <div class="arch-arrow">→</div>
       <div class="arch-node">
         <div class="arch-icon">🧠</div>
         <div class="arch-title">3. Azure Cognitive Services</div>
-        <div class="arch-desc">Processes the image securely in the Microsoft Cloud using the latest Image Analysis 4.0 models.</div>
+        <div class="arch-desc">Processes the image securely in the Microsoft Cloud using Image Analysis 4.0 and domain-specific v3.2 models.</div>
       </div>
     </div>
   </div>
@@ -521,13 +569,20 @@ function analyzeFromURL() {
 
 function showPreview(src) {
   const img = document.getElementById('preview-img');
-  img.onload = () => { img.alt = "Preview"; };
+  clearOverlay();
+  img.onload = () => { img.alt = "Preview"; clearOverlay(); };
   img.onerror = () => {
     img.alt = "Preview failed to load in browser. (Make sure it's a direct .jpg or .png link, not a webpage! Azure will still try to analyze it.)";
   };
   img.src = src;
   document.getElementById('preview-wrap').style.display = 'block';
   resetResults();
+}
+
+function clearOverlay() {
+  const canvas = document.getElementById('overlay-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 async function analyzeCurrentImage() {
@@ -593,6 +648,7 @@ function resetResults() {
   document.getElementById('error-box').style.display = 'none';
   document.getElementById('results-placeholder').style.display = 'flex';
   document.getElementById('results-content').style.display = 'none';
+  clearOverlay();
 }
 
 function showError(msg) {
@@ -600,6 +656,62 @@ function showError(msg) {
   const eb = document.getElementById('error-box');
   eb.style.display = 'block';
   eb.innerHTML = `<strong>Error during analysis</strong><br>${msg}`;
+}
+
+// Resize the overlay canvas to match the rendered image size, in image
+// pixel coordinates, then draw whatever boxes we have.
+function setupOverlay(boxSets) {
+  const img = document.getElementById('preview-img');
+  const canvas = document.getElementById('overlay-canvas');
+
+  const draw = () => {
+    const rect = img.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    const scaleX = rect.width / (img.naturalWidth || rect.width);
+    const scaleY = rect.height / (img.naturalHeight || rect.height);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    boxSets.forEach(({ boxes, color }) => {
+      boxes.forEach(b => {
+        const x = b.x * scaleX;
+        const y = b.y * scaleY;
+        const w = b.w * scaleX;
+        const h = b.h * scaleY;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y, w, h);
+        if (b.label) {
+          ctx.font = '600 11px "Segoe UI", sans-serif';
+          const textW = ctx.measureText(b.label).width + 8;
+          ctx.fillStyle = color;
+          ctx.fillRect(x, Math.max(0, y - 16), textW, 16);
+          ctx.fillStyle = '#fff';
+          ctx.fillText(b.label, x + 4, Math.max(11, y - 4));
+        }
+      });
+    });
+  };
+
+  if (img.complete && img.naturalWidth) {
+    draw();
+  } else {
+    img.onload = draw;
+  }
+  window.addEventListener('resize', draw, { once: true });
+}
+
+function boundingBoxFromAzure(bb) {
+  // Azure returns either {x,y,w,h} (v4) or {x,y,w,h} nested under
+  // "boundingBox", or v3.2 {x,y,w,h} directly. Normalize defensively.
+  if (!bb) return null;
+  const src = bb.boundingBox || bb.rectangle || bb;
+  const x = src.x ?? src.left ?? 0;
+  const y = src.y ?? src.top ?? 0;
+  const w = src.w ?? src.width ?? 0;
+  const h = src.h ?? src.height ?? 0;
+  return { x, y, w, h };
 }
 
 function showResults(data) {
@@ -650,7 +762,6 @@ function showResults(data) {
     `;
     barsEl.appendChild(div);
     
-    // Animate
     setTimeout(() => {
       const bar = document.getElementById(`bar-${idx}`);
       if(bar) bar.style.width = `${pct}%`;
@@ -670,12 +781,62 @@ function showResults(data) {
       });
     });
   }
-  
-  if (ocrText.trim()) {
-    ocrEl.textContent = ocrText.trim();
+  ocrEl.textContent = ocrText.trim() || 'No text detected (OCR returned empty).';
+
+  // PEOPLE
+  const people = data.peopleResult?.values || [];
+  const peopleSummary = document.getElementById('res-people-summary');
+  const peopleBoxes = people
+    .filter(p => (p.confidence || 0) > 0.5)
+    .map((p, i) => {
+      const box = boundingBoxFromAzure(p);
+      return box ? { ...box, label: `Person ${i + 1} (${((p.confidence||0)*100).toFixed(0)}%)` } : null;
+    })
+    .filter(Boolean);
+  peopleSummary.textContent = peopleBoxes.length
+    ? `${peopleBoxes.length} person${peopleBoxes.length === 1 ? '' : 's'} detected (boxed in purple on the preview image).`
+    : 'No people detected above the confidence threshold.';
+
+  // BRANDS
+  const brands = data.brandsResult?.values || [];
+  const brandsWrap = document.getElementById('res-brands');
+  brandsWrap.innerHTML = '';
+  const brandBoxes = [];
+  if (brands.length === 0) {
+    brandsWrap.innerHTML = '<span style="color:var(--text-secondary);">No brands detected</span>';
   } else {
-    ocrEl.textContent = 'No text detected (OCR returned empty).';
+    brands.forEach(b => {
+      const conf = b.confidence || 0;
+      const el = document.createElement('span');
+      el.className = 'modern-tag brand-tag';
+      el.innerHTML = `${b.name} <span class="tag-conf">${(conf*100).toFixed(0)}%</span>`;
+      brandsWrap.appendChild(el);
+      const box = boundingBoxFromAzure(b);
+      if (box) brandBoxes.push({ ...box, label: b.name });
+    });
   }
+
+  // LANDMARKS
+  const landmarks = data.landmarksResult?.values || [];
+  const landmarksWrap = document.getElementById('res-landmarks');
+  landmarksWrap.innerHTML = '';
+  if (landmarks.length === 0) {
+    landmarksWrap.innerHTML = '<span style="color:var(--text-secondary);">No known landmarks recognized</span>';
+  } else {
+    landmarks.forEach(l => {
+      const conf = l.confidence || 0;
+      const el = document.createElement('span');
+      el.className = 'modern-tag landmark-tag';
+      el.innerHTML = `${l.name} <span class="tag-conf">${(conf*100).toFixed(0)}%</span>`;
+      landmarksWrap.appendChild(el);
+    });
+  }
+
+  // Draw overlays: people (purple), brands (orange)
+  setupOverlay([
+    { boxes: peopleBoxes, color: '#8661c5' },
+    { boxes: brandBoxes, color: '#d9820a' },
+  ]);
 }
 </script>
 </body>
